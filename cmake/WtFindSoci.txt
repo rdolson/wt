@@ -1,0 +1,43 @@
+# This file defines:
+# - SOCI_LIBRARIES
+# - SOCI_INCLUDE_DIRS
+# - SOCI_FOUND
+# Taking into account:
+# - SOCI_PREFIX
+
+IF(WIN32)
+SET(SOCI_LIBRARY soci32)
+SET(SOCI_LIBRARIES ${SOCI_LIBRARY})
+SET(SOCI_INCLUDE "")
+SET(SOCI_FOUND TRUE)
+ELSE(WIN32)
+SET(SOCI_LIBRARY soci_core soci_sqlite3 soci_empty)
+
+FIND_LIBRARY(SOCI_LIB
+  NAMES
+    ${SOCI_LIBRARY}
+  PATHS
+    ${SOCI_PREFIX}/lib
+    ${SOCI_PREFIX}
+    /usr/lib
+    /usr/lib64
+    /usr/local/lib
+    /opt/local/lib
+)
+
+SET(SOCI_LIBRARIES ${SOCI_LIB})
+
+FIND_PATH(SOCI_INCLUDE soci/soci.h
+    ${SOCI_PREFIX}/include
+    /usr/include
+    /usr/local/include
+    /opt/local/include	
+)
+
+SET(SOCI_FOUND FALSE)
+
+IF(SOCI_LIBRARIES AND SOCI_INCLUDE)
+  SET(SOCI_FOUND TRUE)
+  SET(SOCI_INCLUDE_DIRS ${SOCI_INCLUDE})
+ENDIF(SOCI_LIBRARIES AND SOCI_INCLUDE)
+ENDIF(WIN32)

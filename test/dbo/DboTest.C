@@ -2937,7 +2937,7 @@ BOOST_AUTO_TEST_CASE ( dbo_test34 )
   const std::vector<double> ds =
     { 0.123456789123456, std::numeric_limits<double>::infinity(),
       -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN() };
-#elif defined(MYSQL) || defined(MSSQLSERVER) || defined(FIREBIRD)
+#elif defined(MYSQL) || defined(MSSQLSERVER) || defined(FIREBIRD) || defined(SOCI)
   const std::vector<double> ds = { 0.12345678923456 };
 #endif
 
