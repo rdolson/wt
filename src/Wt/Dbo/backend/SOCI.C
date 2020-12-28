@@ -113,8 +113,8 @@ namespace Wt {
 		virtual void bind(int column, const std::string &value) override
 		{
 		    std::cerr << "BIND STR " << column << " " << value << "\n";
-		    // bindings_.push_back({ t_stdstring, { .v_stdstring = new std::string { value } } });
-		    bindings_.push_back({ t_stdstring, { .v_stdstring = &value }} );
+		    bindings_.push_back({ t_stdstring, { .v_stdstring = new std::string { value } } });
+		    // bindings_.push_back({ t_stdstring, { .v_stdstring = &value }} );
 		}
 		
 		virtual void bind(int column, short value) override
@@ -179,6 +179,8 @@ namespace Wt {
 		virtual void execute() override
 		{
 		    std::cerr<< "EXECUTE\n";
+		    stmt_.alloc();
+		    stmt_.prepare(sql_);
 
 		    for (int i = 0; i < bindings_.size(); i++)
 		    {
@@ -216,17 +218,24 @@ namespace Wt {
 			}
 		    }
 
-		    stmt_.alloc();
-		    stmt_.prepare(sql_);
 		    stmt_.define_and_bind();
-		    stmt_.execute(true);
+		    stmt_.exchange_for_rowset(soci::into(row_));
+		    stmt_.execute(false);
+
+		    first_row_ = true;
+		    iter_ = std::move(soci::rowset_iterator<soci::row>(stmt_, row_));
+
+		    // for (; iter_ != iter_end_; ++iter_) {
+		    // 	soci::row const& row = *iter_;
+		    // 	int iv = row.get<int>(0);
+		    // 	std::cerr << "got row ent " << iv << "\n";
+		    // } 
 
 		    long long id = 0;
 		    bool x = impl_->session.get_last_insert_id("", id);
 		    std::cerr << "got id " << id << " res=" << x << "\n";
 		    lastId_ = id;
 
-		    /*
 		    for (auto b: bindings_)
 		    {
 			if (b.key == t_stdstring)
@@ -235,7 +244,6 @@ namespace Wt {
 			    b.val.v_stdstring = 0;
 			}
 		    }
-		    */
 		}
 
 		virtual long long insertedId() override
@@ -247,47 +255,71 @@ namespace Wt {
 		virtual int affectedRowCount() override
 		{
 		    std::cerr << "GET affectedRowCount\n";
-		    return 0;
-		    // return static_cast<int>(affectedRows_);
+		    return static_cast<int>(affectedRows_);
 		}
 
 		virtual bool nextRow() override
 		{
-		    return false;
+		    if (first_row_)
+		    {
+			first_row_ = false;
+		    }
+		    else
+		    {
+			++iter_;
+		    }
+		    bool gotData = (iter_ != iter_end_);
+					
+		    std::cerr << "nextRow() " << gotData << "\n";
+		    return gotData;
 		}
 
 		virtual int columnCount() const override
 		{
+		    std::cerr << "columnCount()\n";
 		    return 0;
 		}
 		
 		virtual bool getResult(int column, std::string *value, int /*size*/) override
 		{
-		    return false;
+		    std::cerr << "getResult str\n";
+		    *value = iter_->get<std::string>(column);
+		    return true;
 		}
 
 		virtual bool getResult(int column, short * value) override
 		{
-		    return false;
+		    std::cerr << "getResult short\n";
+		    *value = iter_->get<short>(column);
+		    return true;
 		}
 
 		virtual bool getResult(int column, int * value) override
 		{
-		    return false;
+		    std::cerr << "getResult int\n";
+		    *value = iter_->get<int>(column);
+		    return true;
 		}
 
 		virtual bool getResult(int column, long long * value) override
 		{
-		    return false;
+		    *value = iter_->get<int>(column);
+		    std::cerr << "getResult long long\n";
+		    return true;
+
 		}
 
 		virtual bool getResult(int column, float * value) override
 		{
+		    *value = iter_->get<float>(column);
+		    std::cerr << "getResult float\n";
 		    return false;
 		}
 
 		virtual bool getResult(int column, double * value) override
 		{
+		    *value = iter_->get<double>(column);
+		    std::cerr << "getResult double\n";
 		    return false;
 		}
 
@@ -328,9 +360,15 @@ namespace Wt {
 	    private:
 
 		soci::statement stmt_;
+		soci::row row_;
+		bool first_row_;
+		soci::rowset_iterator<soci::row> iter_;
+		soci::rowset_iterator<soci::row> iter_end_;
 		std::string sql_;
 		long long lastId_;
 		SOCI::Impl *impl_;
+
+		long long affectedRows_;
 
 		std::vector<bind_data> bindings_;
 		
@@ -360,6 +398,7 @@ namespace Wt {
 
 	    SOCI::~SOCI()
 	    {
+		clearStatementCache();
 		delete impl_;
 	    }
 
