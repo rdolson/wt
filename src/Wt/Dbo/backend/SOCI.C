@@ -103,8 +103,22 @@ namespace Wt {
 
 		virtual ~SOCIStatement()
 		{
+		    stmt_.clean_up();
+		    clear_bindings();
 		}
 		
+		void clear_bindings()
+		{
+		    for (auto b: bindings_)
+		    {
+			if (b.key == t_stdstring && b.val.v_stdstring != nullptr)
+			{
+			    delete b.val.v_stdstring;
+			    b.val.v_stdstring = nullptr;
+			}
+		    }
+		    bindings_.clear();
+		}
 		
 		virtual void reset() override
 		{
@@ -236,14 +250,7 @@ namespace Wt {
 		    std::cerr << "got id " << id << " res=" << x << "\n";
 		    lastId_ = id;
 
-		    for (auto b: bindings_)
-		    {
-			if (b.key == t_stdstring)
-			{
-			    delete b.val.v_stdstring;
-			    b.val.v_stdstring = 0;
-			}
-		    }
+		    clear_bindings();
 		}
 
 		virtual long long insertedId() override
