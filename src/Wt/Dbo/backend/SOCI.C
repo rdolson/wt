@@ -238,8 +238,11 @@ namespace Wt {
 		    stmt_.exchange_for_rowset(soci::into(row_));
 		    stmt_.execute(false);
 
-		    first_row_ = true;
-		    iter_ = std::move(soci::rowset_iterator<soci::row>(stmt_, row_));
+		    if (sql_.substr(0, 6) == "select")
+		      {
+			first_row_ = true;
+			iter_ = std::move(soci::rowset_iterator<soci::row>(stmt_, row_));
+		      }
 
 		    // for (; iter_ != iter_end_; ++iter_) {
 		    // 	soci::row const& row = *iter_;
