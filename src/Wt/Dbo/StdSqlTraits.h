@@ -104,7 +104,7 @@ struct WTDBO_API sql_value_traits<double, void>
 {
   static const bool specialized = true;
 
-  static const char *type(SqlConnection *conn, int size);
+  static std::string type(SqlConnection *conn, int size);
   static void bind(double v, SqlStatement *statement, int column, int size);
   static bool read(double& v, SqlStatement *statement, int column, int size);
 };

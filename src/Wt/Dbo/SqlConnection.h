@@ -225,6 +225,12 @@ public:
    */
   virtual const char *blobType() const = 0;
 
+  /*! \brief Returns the double precision type.
+   *
+   * \sa SqlStatement::bind(int, const std::vector<unsigned char>&)
+   */
+  virtual std::string doublePrecisionType(int size) const;
+
   /*! \brief Returns the text type.
    *
    * This is the text type for a string. If \p size = -1, then a type

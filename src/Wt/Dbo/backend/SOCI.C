@@ -11,6 +11,8 @@
 
 #include "Wt/Date/date.h"
 
+#include <Wt/Dbo/SqlTraits.h>
+
 #include <soci/soci.h>
 
 
@@ -472,7 +474,8 @@ namespace Wt {
 
 	    std::string SOCI::autoincrementSql() const
 	    {
-		return "autoincrement";
+		return "";
+		//return "autoincrement";
 	    }
 
 	    std::vector<std::string> SOCI::autoincrementCreateSequenceSql(const std::string &table, const std::string &id) const
@@ -487,7 +490,12 @@ namespace Wt {
 
 	    std::string SOCI::autoincrementType() const
 	    {
-		return "integer";
+		return "autoincrement";
+	    }
+
+	    std::string SOCI::doublePrecisionType(int size) const
+	    {
+		return "double";
 	    }
 
 	    std::string SOCI::autoincrementInsertInfix(const std::string &id) const

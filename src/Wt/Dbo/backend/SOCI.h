@@ -99,6 +99,7 @@ public:
   virtual std::vector<std::string> autoincrementCreateSequenceSql(const std::string &table, const std::string &id) const override;
   virtual std::vector<std::string> autoincrementDropSequenceSql(const std::string &table, const std::string &id) const override;
   virtual std::string autoincrementType() const override;
+  virtual std::string doublePrecisionType(int size) const override;
   virtual std::string autoincrementInsertInfix(const std::string &id) const override;
   virtual std::string autoincrementInsertSuffix(const std::string &id) const override;
   virtual const char *dateTimeType(SqlDateTimeType type) const override;

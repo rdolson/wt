@@ -129,6 +129,11 @@ bool SqlConnection::showQueries() const
   return property("show-queries") == "true";
 }
 
+ std::string SqlConnection::doublePrecisionType(int size) const
+{
+    return "double precision";
+}
+
 std::string SqlConnection::textType(int size) const
 {
   if (size == -1)

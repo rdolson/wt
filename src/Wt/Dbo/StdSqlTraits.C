@@ -197,9 +197,9 @@ bool sql_value_traits<float>::read(float& v, SqlStatement *statement,
    * double
    */
 
-const char *sql_value_traits<double>::type(SqlConnection *conn, int size)
+ std::string sql_value_traits<double>::type(SqlConnection *conn, int size)
 {
-  return "double precision not null";
+  return conn->doublePrecisionType(size) + " not null";
 }
 
 void sql_value_traits<double>::bind(double v, SqlStatement *statement,
