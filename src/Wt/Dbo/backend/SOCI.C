@@ -260,13 +260,11 @@ namespace Wt {
 
 		virtual long long insertedId() override
 		{
-		    std::cerr << "GET insertedId " << lastId_ << "\n";
 		    return lastId_;
 		}
 		
 		virtual int affectedRowCount() override
 		{
-		    std::cerr << "GET affectedRowCount\n";
 		    return static_cast<int>(affectedRows_);
 		}
 
@@ -281,58 +279,81 @@ namespace Wt {
 			++iter_;
 		    }
 		    bool gotData = (iter_ != iter_end_);
-					
-		    std::cerr << "nextRow() " << gotData << "\n";
 		    return gotData;
 		}
 
 		virtual int columnCount() const override
 		{
-		    std::cerr << "columnCount()\n";
 		    return 0;
 		}
 		
 		virtual bool getResult(int column, std::string *value, int /*size*/) override
 		{
-		    std::cerr << "getResult str\n";
-		    *value = iter_->get<std::string>(column);
-		    return true;
+		    if (iter_->get_indicator(column) == soci::i_ok)
+		    {
+			*value = iter_->get<std::string>(column);
+			return true;
+		    }
+		    else
+		    {
+			return false;
+		    }
 		}
 
 		virtual bool getResult(int column, short * value) override
 		{
-		    std::cerr << "getResult short\n";
-		    *value = iter_->get<short>(column);
-		    return true;
+                    if (iter_->get_indicator(column) == soci::i_ok)
+                    {
+			*value = iter_->get<short>(column);
+			return true;
+		    }
+		    else
+			return false;
 		}
 
 		virtual bool getResult(int column, int * value) override
 		{
-		    std::cerr << "getResult int\n";
-		    *value = iter_->get<int>(column);
-		    return true;
+                    if (iter_->get_indicator(column) == soci::i_ok)
+                    {
+			*value = iter_->get<int>(column);
+			return true;
+		    }
+		    else
+			return false;
 		}
 
 		virtual bool getResult(int column, long long * value) override
 		{
-		    *value = iter_->get<int>(column);
-		    std::cerr << "getResult long long\n";
-		    return true;
+                    if (iter_->get_indicator(column) == soci::i_ok)
+                    {
+			*value = iter_->get<int>(column);
+			return true;
+		    }
+		    else
+			return false;
 
 		}
 
 		virtual bool getResult(int column, float * value) override
 		{
-		    *value = iter_->get<float>(column);
-		    std::cerr << "getResult float\n";
-		    return false;
+                    if (iter_->get_indicator(column) == soci::i_ok)
+                    {
+			*value = iter_->get<float>(column);
+			return true;
+		    }
+		    else
+			return false;
 		}
 
 		virtual bool getResult(int column, double * value) override
 		{
-		    *value = iter_->get<double>(column);
-		    std::cerr << "getResult double\n";
-		    return false;
+                    if (iter_->get_indicator(column) == soci::i_ok)
+                    {
+			*value = iter_->get<double>(column);
+			return true;
+		    }
+		    else
+			return false;
 		}
 
 		virtual bool getResult(
