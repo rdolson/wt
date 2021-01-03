@@ -41,14 +41,12 @@ namespace Wt {
 		    : connectionString(str) {
 		    resultBuffer.buf = (char*)malloc(256);
 		    resultBuffer.size = 256;
-		    std::cerr << "New impl\n";
 		}
 		
 		Impl(const Impl &other)
 		    : connectionString(other.connectionString) {
 		    resultBuffer.buf = (char*)malloc(256);
 		    resultBuffer.size = 256;
-		    std::cerr << "New impl copy\n";
 		}
 		
 		~Impl() {
@@ -99,8 +97,6 @@ namespace Wt {
 		      sql_(sql),
 		      impl_(conn.impl_),
 		      lastId_(-1) {
-
-		    std::cerr << "STMT: " << sql << "\n";
 		}
 
 		virtual ~SOCIStatement()
@@ -128,38 +124,32 @@ namespace Wt {
 		
 		virtual void bind(int column, const std::string &value) override
 		{
-		    std::cerr << "BIND STR " << column << " " << value << "\n";
 		    bindings_.push_back({ t_stdstring, { .v_stdstring = new std::string { value } } });
 		    // bindings_.push_back({ t_stdstring, { .v_stdstring = &value }} );
 		}
 		
 		virtual void bind(int column, short value) override
 		{
-		    std::cerr << "BIND SHORT " << column << " " << value << "\n";
 		    stmt_.exchange(soci::use(value));
 		}
 
 		virtual void bind(int column, int value) override
 		{
-		    std::cerr << "BIND INT " << column << " " << value << "\n";
 		    bindings_.push_back({ t_int, { .v_int = value } });
 		}
 
 		virtual void bind(int column, long long value) override
 		{
-		    std::cerr << "BIND LL " << column << " " << value << "\n";
 		    bindings_.push_back({ t_longlong, { .v_longlong = value } });
 		}
 		
 		virtual void bind(int column, float value) override
 		{
-		    std::cerr << "BIND FLOAT " << column << " " << value << "\n";
 		    bindings_.push_back({ t_double, { .v_double = static_cast<double>(value) } });
 		}
 
 		virtual void bind(int column, double value) override
 		{
-		    std::cerr << "BIND DOUBLE " << column << " " << value << "\n";
 		    bindings_.push_back({ t_double, { .v_double = value } });
 		}
 
@@ -188,13 +178,11 @@ namespace Wt {
 		
 		virtual void bindNull(int column) override
 		{
-		    std::cerr << "BIND NULL" << "\n";
 		    bindings_.push_back( { t_null } );
 		}
 
 		virtual void execute() override
 		{
-		    std::cerr<< "EXECUTE\n";
 		    stmt_.alloc();
 		    stmt_.prepare(sql_);
 
@@ -204,7 +192,6 @@ namespace Wt {
 			switch (b.key)
 			{
 			case t_null:
-			    std::cerr << "bind null "  << "\n";
 			    {
 				soci::indicator ind = soci::i_null;
 				stmt_.exchange(soci::use(0, ind));
@@ -212,33 +199,32 @@ namespace Wt {
 			    break;
 			    
 			case t_int:
-			    std::cerr << "bind int " << b.val.v_int << "\n";
 			    stmt_.exchange(soci::use(bindings_[i].val.v_int));
 			    break;
 			    
 			case t_longlong:
-			    std::cerr << "bind longlong " << b.val.v_longlong << "\n";
 			    stmt_.exchange(soci::use(bindings_[i].val.v_longlong));
 			    break;
 			    
 			case t_double:
-			    std::cerr << "bind double " << b.val.v_double << "\n";
 			    stmt_.exchange(soci::use(bindings_[i].val.v_double));
 			    break;
 
 			case t_stdstring:
-			    std::cerr << "bind str " << *b.val.v_stdstring << "\n";
 			    stmt_.exchange(soci::use(*b.val.v_stdstring));
 			    break;
 			    
 			}
 		    }
 
+		    bool is_select = sql_.substr(0, 6) == "select";
+
 		    stmt_.define_and_bind();
-		    stmt_.exchange_for_rowset(soci::into(row_));
+		    if (is_select)
+		      stmt_.exchange_for_rowset(soci::into(row_));
 		    stmt_.execute(false);
 
-		    if (sql_.substr(0, 6) == "select")
+		    if (is_select)
 		      {
 			first_row_ = true;
 			iter_ = std::move(soci::rowset_iterator<soci::row>(stmt_, row_));
@@ -252,7 +238,6 @@ namespace Wt {
 
 		    long long id = 0;
 		    bool x = impl_->session.get_last_insert_id("", id);
-		    std::cerr << "got id " << id << " res=" << x << "\n";
 		    lastId_ = id;
 
 		    clear_bindings();
@@ -462,7 +447,6 @@ namespace Wt {
 		if (showQueries()) {
 		    LOG_INFO(sql);
 		}
-		std::cerr << "executeSql " << sql << "\n";
 
 		soci::statement st(impl_->session);
 		st.alloc();
