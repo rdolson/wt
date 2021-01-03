@@ -18,6 +18,7 @@ FIND_LIBRARY(SOCI_LIB
     ${SOCI_LIBRARY}
   PATHS
     ${SOCI_PREFIX}/lib
+    ${SOCI_PREFIX}/lib64
     ${SOCI_PREFIX}
     /usr/lib
     /usr/lib64

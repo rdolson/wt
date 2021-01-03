@@ -234,11 +234,17 @@ namespace Wt {
 			}
 		    }
 
+		    bool is_select = sql_.substr(0, 6) == "select";
+
 		    stmt_.define_and_bind();
 		    stmt_.exchange_for_rowset(soci::into(row_));
-		    stmt_.execute(false);
+		    bool gotData = stmt_.execute(!is_select);
+		    std::cerr << "gotdata=" << gotData << "\n";
 
-		    if (sql_.substr(0, 6) == "select")
+		    affectedRows_ = stmt_.get_affected_rows();
+		    std::cerr<< "got affected " << affectedRows_ << "\n";
+
+		    if (is_select)
 		      {
 			first_row_ = true;
 			iter_ = std::move(soci::rowset_iterator<soci::row>(stmt_, row_));
