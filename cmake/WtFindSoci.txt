@@ -5,19 +5,20 @@
 # Taking into account:
 # - SOCI_PREFIX
 
-IF(WIN32)
+IF(xWIN32)
 SET(SOCI_LIBRARY soci32)
 SET(SOCI_LIBRARIES ${SOCI_LIBRARY})
 SET(SOCI_INCLUDE "")
 SET(SOCI_FOUND TRUE)
 ELSE(WIN32)
-SET(SOCI_LIBRARY soci_core soci_sqlite3 soci_empty)
+SET(SOCI_LIBRARY soci_core_4_0 soci_odbc_4_0 soci_empty_4_0)
 
 FIND_LIBRARY(SOCI_LIB
   NAMES
     ${SOCI_LIBRARY}
   PATHS
     ${SOCI_PREFIX}/lib
+    ${SOCI_PREFIX}/lib64
     ${SOCI_PREFIX}
     /usr/lib
     /usr/lib64

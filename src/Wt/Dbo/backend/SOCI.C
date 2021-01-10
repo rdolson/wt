@@ -73,6 +73,7 @@ namespace Wt {
 		{
 		    t_short,
 		    t_int,
+		    t_long,
 		    t_longlong,
 		    t_double,
 		    t_stdstring,
@@ -83,6 +84,7 @@ namespace Wt {
 		    short v_short;
 		    int v_int;
 		    long long v_longlong;
+		    long v_long;
 		    double v_double;
 		    const std::string *v_stdstring;
 		};
@@ -140,7 +142,7 @@ namespace Wt {
 
 		virtual void bind(int column, long long value) override
 		{
-		    bindings_.push_back({ t_longlong, { .v_longlong = value } });
+		    bindings_.push_back({ t_long, { .v_long = static_cast<long>(value) } });
 		}
 		
 		virtual void bind(int column, float value) override
@@ -183,6 +185,7 @@ namespace Wt {
 
 		virtual void execute() override
 		{
+		    stmt_.bind_clean_up();
 		    stmt_.alloc();
 		    stmt_.prepare(sql_);
 
@@ -206,6 +209,10 @@ namespace Wt {
 			    stmt_.exchange(soci::use(bindings_[i].val.v_longlong));
 			    break;
 			    
+			case t_long:
+			    stmt_.exchange(soci::use(bindings_[i].val.v_long));
+			    break;
+			    
 			case t_double:
 			    stmt_.exchange(soci::use(bindings_[i].val.v_double));
 			    break;
@@ -220,9 +227,12 @@ namespace Wt {
 		    bool is_select = sql_.substr(0, 6) == "select";
 
 		    stmt_.define_and_bind();
-		    if (is_select)
-		      stmt_.exchange_for_rowset(soci::into(row_));
-		    stmt_.execute(false);
+		    stmt_.exchange_for_rowset(soci::into(row_));
+		    bool gotData = stmt_.execute(!is_select);
+		    std::cerr << "gotdata=" << gotData << "\n";
+
+		    affectedRows_ = stmt_.get_affected_rows();
+		    std::cerr<< "got affected " << affectedRows_ << "\n";
 
 		    if (is_select)
 		      {
